@@ -1,0 +1,17 @@
+../Core/Src/F7_INA226.c:17:11:INA226_getBusV	16	static
+../Core/Src/F7_INA226.c:21:11:INA226_getCurrent	16	static
+../Core/Src/F7_INA226.c:25:11:INA226_getPower	16	static
+../Core/Src/F7_INA226.c:29:9:INA226_setConfig	32	static
+../Core/Src/F7_INA226.c:37:10:INA226_getConfig	32	static
+../Core/Src/F7_INA226.c:45:10:INA226_getShuntV	32	static
+../Core/Src/F7_INA226.c:53:10:INA226_getBusVReg	32	static
+../Core/Src/F7_INA226.c:61:9:INA226_setCalibrationReg	32	static
+../Core/Src/F7_INA226.c:69:10:INA226_getCalibrationReg	32	static
+../Core/Src/F7_INA226.c:77:10:INA226_getPowerReg	32	static
+../Core/Src/F7_INA226.c:85:10:INA226_getCurrentReg	32	static
+../Core/Src/F7_INA226.c:93:10:INA226_getManufID	32	static
+../Core/Src/F7_INA226.c:101:10:INA226_getDieID	32	static
+../Core/Src/F7_INA226.c:109:9:INA226_setMaskEnable	32	static
+../Core/Src/F7_INA226.c:117:10:INA226_getMaskEnable	32	static
+../Core/Src/F7_INA226.c:125:9:INA226_setAlertLimit	32	static
+../Core/Src/F7_INA226.c:133:10:INA226_getAlertLimit	32	static

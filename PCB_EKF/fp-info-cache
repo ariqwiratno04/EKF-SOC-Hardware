@@ -1,4 +1,4 @@
-23919130508722647
+23917381814024406
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -56735,6 +56735,13 @@ ACS712_Module
 7
 5
 EKF
+INA226_module
+
+
+0
+12
+8
+EKF
 TP4056-18650
 
 
@@ -89270,20 +89277,6 @@ rotary encoder illuminated switch vertical
 0
 9
 8
-STM32 Discovery
-MODULE_STM32F4DISCOVERY
-
-
-0
-100
-97
-STM32 Discovery
-YAAJ_BlackPill_SWD_1
-BlackPill module with pin headers / sockets. SWD broken out to PCB.
-module BlackPill Black Pill header SWD breakout
-0
-38
-38
 Sensor
 ASAIR_AM2302_P2.54mm_Lead2.75mm_TabDown
 Temperature and humidity module, http://akizukidenshi.com/download/ds/aosong/AM2302.pdf

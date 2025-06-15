@@ -1,0 +1,22 @@
+2025-06-14 00:00:11,838 [INFO] Gpio:273 - dependency for GPIO [I2C1, RCC, SYS, USART1, USB_OTG_FS]
+2025-06-14 00:00:11,903 [WARN] IP:2113 - DEVICE_SERIAL0_CDC_FS not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,903 [WARN] IP:2113 - DEVICE_SERIAL1_CDC_FS not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,903 [WARN] IP:2113 - DEVICE_SERIAL2_CDC_FS not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,903 [WARN] IP:2113 - DEVICE_SERIAL0_CDC_FS not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,903 [WARN] IP:2113 - DEVICE_SERIAL1_CDC_FS not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,904 [WARN] IP:2113 - DEVICE_SERIAL2_CDC_FS not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,912 [WARN] IP:2113 - I2C_Coeff_DF not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,912 [WARN] IP:2113 - Analog_Filter not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,913 [WARN] IP:2113 - I2C_Coeff_DF not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,913 [WARN] IP:2113 - Analog_Filter not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,922 [WARN] IP:2113 - DEVICE_SERIAL0_CDC_FS not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,923 [WARN] IP:2113 - DEVICE_SERIAL1_CDC_FS not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,923 [WARN] IP:2113 - DEVICE_SERIAL2_CDC_FS not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,928 [WARN] IP:2113 - I2C_Coeff_DF not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,929 [WARN] IP:2113 - Analog_Filter not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,935 [WARN] IP:2113 - DEVICE_SERIAL0_CDC_FS not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,935 [WARN] IP:2113 - DEVICE_SERIAL1_CDC_FS not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,935 [WARN] IP:2113 - DEVICE_SERIAL2_CDC_FS not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,940 [WARN] IP:2113 - I2C_Coeff_DF not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,941 [WARN] IP:2113 - Analog_Filter not found: check if there is a RefParameter without a condition.
+2025-06-14 00:00:11,951 [INFO] Gpio:273 - dependency for GPIO [I2C1, RCC, SYS, USART1, USB_OTG_FS]

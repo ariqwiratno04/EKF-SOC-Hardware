@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "INA226_Module")(type "KiCad")(uri "${KIPRJMOD}/INA226_Module.kicad_sym")(options "")(descr ""))
+)
