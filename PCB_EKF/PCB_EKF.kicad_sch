@@ -1054,7 +1054,7 @@
 				)
 			)
 		)
-		(symbol "Device:Q_NMOS_GDS"
+		(symbol "Device:Q_NMOS_GSD"
 			(pin_names
 				(offset 0) hide)
 			(exclude_from_sim no)
@@ -1069,7 +1069,7 @@
 					(justify left)
 				)
 			)
-			(property "Value" "Q_NMOS_GDS"
+			(property "Value" "Q_NMOS_GSD"
 				(at 5.08 -1.27 0)
 				(effects
 					(font
@@ -1096,7 +1096,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "N-MOSFET transistor, gate/drain/source"
+			(property "Description" "N-MOSFET transistor, gate/source/drain"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1114,7 +1114,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "Q_NMOS_GDS_0_1"
+			(symbol "Q_NMOS_GSD_0_1"
 				(polyline
 					(pts
 						(xy 0.254 0) (xy -2.54 0)
@@ -1281,7 +1281,7 @@
 					)
 				)
 			)
-			(symbol "Q_NMOS_GDS_1_1"
+			(symbol "Q_NMOS_GSD_1_1"
 				(pin input line
 					(at -5.08 0 0)
 					(length 2.54)
@@ -1301,9 +1301,9 @@
 					)
 				)
 				(pin passive line
-					(at 2.54 5.08 270)
+					(at 2.54 -5.08 90)
 					(length 2.54)
-					(name "D"
+					(name "S"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1319,9 +1319,9 @@
 					)
 				)
 				(pin passive line
-					(at 2.54 -5.08 90)
+					(at 2.54 5.08 270)
 					(length 2.54)
-					(name "S"
+					(name "D"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5203,6 +5203,16 @@
 	)
 	(wire
 		(pts
+			(xy 59.69 92.71) (xy 59.69 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4b22a793-e5b5-485a-99c3-14f1b5563948")
+	)
+	(wire
+		(pts
 			(xy 250.19 38.1) (xy 252.73 38.1)
 		)
 		(stroke
@@ -5300,6 +5310,16 @@
 			(type default)
 		)
 		(uuid "67f81965-d5ff-47f1-b963-4c3be234e171")
+	)
+	(wire
+		(pts
+			(xy 60.96 92.71) (xy 59.69 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "69cc087a-61b3-449a-8f91-7318b7da369e")
 	)
 	(wire
 		(pts
@@ -7516,6 +7536,79 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:Q_NMOS_GSD")
+		(at 241.3 118.11 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "153fcd61-fe87-4f2a-81cb-2199f8619e51")
+		(property "Reference" "Q1"
+			(at 246.507 116.8978 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Q_NMOS_GSD"
+			(at 246.507 119.3221 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-3"
+			(at 246.38 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 241.3 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "N-MOSFET transistor, gate/source/drain"
+			(at 241.3 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "392de989-1b13-4564-ac42-264c14e31d85")
+		)
+		(pin "3"
+			(uuid "7a0af912-fdd8-437f-a084-523d14d68c26")
+		)
+		(pin "1"
+			(uuid "d629dffe-3cff-4538-8b8f-40aada7fd644")
+		)
+		(instances
+			(project "PCB_EKF"
+				(path "/96cdbd0c-d570-41b3-b8a1-8b764a1a0da3"
+					(reference "Q1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 78.74 57.15 0)
 		(unit 1)
@@ -7720,6 +7813,73 @@
 			(project ""
 				(path "/96cdbd0c-d570-41b3-b8a1-8b764a1a0da3"
 					(reference "R7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 60.96 92.71 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "26ecf7bb-9fb3-42f6-98ca-6291b91628d7")
+		(property "Reference" "#PWR03"
+			(at 67.31 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 64.135 92.71 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 60.96 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 60.96 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 60.96 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f0ba14a9-76c2-4206-bed7-7f3ad17daa35")
+		)
+		(instances
+			(project "PCB_EKF"
+				(path "/96cdbd0c-d570-41b3-b8a1-8b764a1a0da3"
+					(reference "#PWR03")
 					(unit 1)
 				)
 			)
@@ -8752,6 +8912,79 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:Q_NMOS_GSD")
+		(at 182.88 116.84 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "721e2a7e-78b6-4169-93b0-a3f394f48f01")
+		(property "Reference" "Q3"
+			(at 188.087 115.6278 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Q_NMOS_GSD"
+			(at 188.087 118.0521 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-3"
+			(at 187.96 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 182.88 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "N-MOSFET transistor, gate/source/drain"
+			(at 182.88 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "b995050d-2653-4843-be99-9e98aa13e0d8")
+		)
+		(pin "3"
+			(uuid "709ffc4b-d979-4b61-92dd-68c12ebc6335")
+		)
+		(pin "1"
+			(uuid "e9a3c0d9-24cf-49f4-9855-24b09c5c10c1")
+		)
+		(instances
+			(project ""
+				(path "/96cdbd0c-d570-41b3-b8a1-8b764a1a0da3"
+					(reference "Q3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 88.9 57.15 0)
 		(unit 1)
@@ -9233,79 +9466,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:Q_NMOS_GDS")
-		(at 182.88 116.84 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "8b12f3cc-5fc0-4fce-96fe-ba622088a1ae")
-		(property "Reference" "Q2"
-			(at 188.087 115.6278 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "Q_NMOS_GDS"
-			(at 188.087 118.0521 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 187.96 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 182.88 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "N-MOSFET transistor, gate/drain/source"
-			(at 182.88 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "01adad2f-88f7-491c-93f1-405f1344ff71")
-		)
-		(pin "3"
-			(uuid "c19622d0-f6ed-4ad8-8758-663b91883b0c")
-		)
-		(pin "1"
-			(uuid "884aa553-324a-4e6c-a5b1-74a2f08c2c49")
-		)
-		(instances
-			(project "PCB_EKF"
-				(path "/96cdbd0c-d570-41b3-b8a1-8b764a1a0da3"
-					(reference "Q2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Connector:TestPoint")
 		(at 152.4 55.88 270)
 		(unit 1)
@@ -9438,79 +9598,6 @@
 			(project ""
 				(path "/96cdbd0c-d570-41b3-b8a1-8b764a1a0da3"
 					(reference "JP2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:Q_NMOS_GDS")
-		(at 241.3 118.11 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "946ea5dd-30be-4703-8ff8-b06f1d176fa2")
-		(property "Reference" "Q1"
-			(at 246.507 116.8978 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "Q_NMOS_GDS"
-			(at 246.507 119.3221 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 246.38 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 241.3 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "N-MOSFET transistor, gate/drain/source"
-			(at 241.3 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "1a6389de-b5a8-497e-b736-ab93cf98d185")
-		)
-		(pin "3"
-			(uuid "abf3c27f-d24f-4744-9f61-8aa0e1017629")
-		)
-		(pin "1"
-			(uuid "2bdcb868-dbe6-4067-bd8e-c3d4aa60c7a0")
-		)
-		(instances
-			(project ""
-				(path "/96cdbd0c-d570-41b3-b8a1-8b764a1a0da3"
-					(reference "Q1")
 					(unit 1)
 				)
 			)
