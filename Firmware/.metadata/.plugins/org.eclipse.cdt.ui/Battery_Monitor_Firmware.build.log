@@ -1,0 +1,10 @@
+18:13:24 **** Incremental Build of configuration Debug for project Battery_Monitor_Firmware ****
+make -j16 all 
+arm-none-eabi-size   Battery_Monitor_Firmware.elf 
+   text	   data	    bss	    dec	    hex	filename
+  54924	    728	   8936	  64588	   fc4c	Battery_Monitor_Firmware.elf
+Finished building: default.size.stdout
+ 
+
+18:13:25 Build Finished. 0 errors, 0 warnings. (took 357ms)
+

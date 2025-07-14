@@ -1,0 +1,384 @@
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2025 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+/* Includes ------------------------------------------------------------------*/
+#include "main.h"
+#include "i2c.h"
+#include "usart.h"
+#include "usb_device.h"
+#include "gpio.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include <stdio.h>
+#include <string.h>
+#include "F7_INA226.h"
+#include "usbd_cdc_if.h"
+//#include "ee.h"
+/* USER CODE END Includes */
+
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+typedef enum {
+  STATE_IDLE,
+  STATE_CHARGING,
+  STATE_DISCHARGING
+} SystemState_t;
+
+//typedef struct {
+//  float last_soc;
+//} EepromData_t;
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+
+// --- Konstanta Waktu dan Sensor ---
+
+#define SAMPLING_TIME_MS (100) // 100 ms
+const uint16_t INA226_I2C_ADDRESS = 0x80;
+const float INA226_BUS_VOLTAGE_LSB = 0.00125f;
+
+//CAL = 0.00512 / (Current_LSB * R_SHUNT)
+//Current_LSB harus dalam Ampere/bit: 0.5 mA/bit = 0.0005 A/bit
+//R_SHUNT: 0.005 Ohm
+//CAL = 0.00512 / (0.0005 * 0.005) = 0.00512 / 0.0000025 = 2048
+#define INA226_CALIB_VAL_CUSTOM 2068
+#define CURRENT_SENSOR_OFFSET 0.05
+
+const float INA226_CURRENT_LSB_MA = 0.25f; // Diubah sesuai LSB (0.1mA / bit)
+
+// --- Parameter Baterai (HANYA KAPASITAS YANG DIPERLUKAN UNTUK CC) ---
+#define BATTERY_CAPACITY_AH (0.66f)
+
+// --- Inisialisasi State Awal ---
+#define INITIAL_SOC (1.0f)      // Mulai dari 100% (asumsi baterai penuh)
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+
+/* USER CODE BEGIN PV */
+// Variabel untuk state machine
+static volatile SystemState_t system_state = STATE_IDLE;
+
+// Variabel untuk menyimpan state SoC dari Coulomb Counting
+static float soc_coulomb_counting = INITIAL_SOC;
+// Variabel untuk timestamp data logging
+static uint32_t time_ms = 0;
+
+uint8_t uart_rx_buffer[1];
+// --- Flag untuk Kontrol dari User ---
+volatile uint8_t start_charge_flag = 0;
+volatile uint8_t start_discharge_flag = 0;
+
+//EepromData_t eeprom_data;
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+/* USER CODE BEGIN PFP */
+
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
+
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
+{
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_I2C1_Init();
+  MX_USART1_UART_Init();
+  MX_USB_DEVICE_Init();
+  /* USER CODE BEGIN 2 */
+
+  	INA226_setConfig(&hi2c1, INA226_I2C_ADDRESS, INA226_RESET_ACTIVE);
+    HAL_Delay(5); // Beri jeda sangat singkat agar chip selesai reset
+
+  	// Konfigurasi sensor INA226
+    //uint16_t config = INA226_AVG_16 | INA226_VBUS_588uS | INA226_VSH_588uS | INA226_MODE_CONT_SHUNT_AND_BUS;
+    uint16_t config = INA226_AVG_64 |           // Tingkatkan averaging menjadi 64 sampel
+                        INA226_VBUS_1100uS |      // Perpanjang waktu konversi menjadi 1.1ms
+                        INA226_VSH_1100uS |       // Perpanjang waktu konversi menjadi 1.1ms
+                        INA226_MODE_CONT_SHUNT_AND_BUS; // Mode tetap continuous
+    INA226_setConfig(&hi2c1, INA226_I2C_ADDRESS, config);
+    INA226_setCalibrationReg(&hi2c1, INA226_I2C_ADDRESS, INA226_CALIB_VAL_CUSTOM);
+
+    // Aktifkan interrupt UART untuk menerima 1 byte data
+    HAL_UART_Receive_IT(&huart1, uart_rx_buffer, 1);
+
+    // Kirim pesan prompt ke user melalui UART
+    char prompt_msg[] = "\r\nMasukkan user input (c/d): ";
+    HAL_UART_Transmit(&huart1, (uint8_t*)prompt_msg, strlen(prompt_msg), HAL_MAX_DELAY);
+
+    // Kirim header untuk file CSV, agar mudah diimpor
+    //char header[] = "Time(s),SOC(%),Voltage(V),Current(A)\r\n";
+    //CDC_Transmit_FS((uint8_t*)header, strlen(header));
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+	  	  // Logika berdasarkan state saat ini
+	      switch(system_state)
+	      {
+	        case STATE_IDLE:
+	          // Matikan semua relay
+	          HAL_GPIO_WritePin(CTRL_Charge_GPIO_Port, CTRL_Charge_Pin, GPIO_PIN_RESET);
+	          HAL_GPIO_WritePin(CTRL_Load_GPIO_Port, CTRL_Load_Pin, GPIO_PIN_RESET);
+	          // Kedipkan Indikator 1 sebagai penanda siap menerima input
+	          HAL_GPIO_TogglePin(Indikator_1_GPIO_Port, Indikator_1_Pin);
+	          HAL_GPIO_TogglePin(LED_Built_in_GPIO_Port, LED_Built_in_Pin);
+	          // Matikan indikator lain
+	          HAL_GPIO_WritePin(Indikator_2_GPIO_Port, Indikator_2_Pin, GPIO_PIN_RESET);
+	          HAL_GPIO_WritePin(Indikator_3_GPIO_Port, Indikator_3_Pin, GPIO_PIN_RESET);
+	          break;
+
+	        case STATE_CHARGING:
+	          // Nyalakan relay Charge, matikan relay Load
+	          HAL_GPIO_WritePin(CTRL_Charge_GPIO_Port, CTRL_Charge_Pin, GPIO_PIN_SET);
+	          HAL_GPIO_WritePin(CTRL_Load_GPIO_Port, CTRL_Load_Pin, GPIO_PIN_RESET);
+	          break;
+
+	        case STATE_DISCHARGING:
+	          // Nyalakan relay Load, matikan relay Charge
+	          HAL_GPIO_WritePin(CTRL_Load_GPIO_Port, CTRL_Load_Pin, GPIO_PIN_SET);
+	          HAL_GPIO_WritePin(CTRL_Charge_GPIO_Port, CTRL_Charge_Pin, GPIO_PIN_RESET);
+	          break;
+	      }
+
+	      // Proses logging hanya berjalan jika tidak dalam mode IDLE
+	          if (system_state == STATE_CHARGING || system_state == STATE_DISCHARGING)
+	          {
+//	              // Baca Tegangan dan Arus
+	              float measured_voltage = (float)INA226_getBusVReg(&hi2c1, INA226_I2C_ADDRESS) * INA226_BUS_VOLTAGE_LSB;
+	              uint16_t current_raw = INA226_getCurrentReg(&hi2c1, INA226_I2C_ADDRESS);
+//	              float32_t current_conversion = INA226_getCurrent(&hi2c1, INA226_I2C_ADDRESS);
+	              float measured_current_mA = (float)((int16_t)current_raw) * INA226_CURRENT_LSB_MA;
+	              float measured_current_A = (measured_current_mA / 1000.0f) + CURRENT_SENSOR_OFFSET;
+
+//	        	  uint16_t voltage_raw = INA226_getBusVReg(&hi2c1, INA226_I2C_ADDRESS);
+//	        	  uint16_t current_raw = INA226_getCurrentReg(&hi2c1, INA226_I2C_ADDRESS);
+//	        	  uint16_t shunt_v_raw = INA226_getShuntV(&hi2c1, INA226_I2C_ADDRESS); // <-- BACA SHUNT VOLTAGE
+//	        	  uint16_t calib_val   = INA226_getCalibrationReg(&hi2c1, INA226_I2C_ADDRESS); // <-- BACA NILAI KALIBRASI
+
+	              // Hitung SoC CC
+	              float sample_time_seconds = (float)SAMPLING_TIME_MS / 1000.0f;
+	              float soc_delta = (measured_current_A * sample_time_seconds) / (BATTERY_CAPACITY_AH * 3600.0f);
+	              soc_coulomb_counting -= soc_delta;
+	              if (soc_coulomb_counting > 1.0f) soc_coulomb_counting = 1.0f;
+	              if (soc_coulomb_counting < 0.0f) soc_coulomb_counting = 0.0f;
+
+	              // Safety Cutoff
+	              if (soc_coulomb_counting <= 0.0f) {
+	                  HAL_GPIO_WritePin(CTRL_Load_GPIO_Port, CTRL_Load_Pin, GPIO_PIN_RESET);
+	                  system_state = STATE_IDLE; // Kembali ke IDLE jika baterai habis
+	              }
+
+	              // Logika LED Indikator SOC
+	              if (soc_coulomb_counting > 0.8f) {
+	                  HAL_GPIO_WritePin(Indikator_1_GPIO_Port, Indikator_1_Pin, GPIO_PIN_SET);
+	                  HAL_GPIO_WritePin(Indikator_2_GPIO_Port, Indikator_2_Pin, GPIO_PIN_RESET);
+	                  HAL_GPIO_WritePin(Indikator_3_GPIO_Port, Indikator_3_Pin, GPIO_PIN_RESET);
+	              } else if (soc_coulomb_counting >= 0.2f) {
+	                  HAL_GPIO_WritePin(Indikator_1_GPIO_Port, Indikator_1_Pin, GPIO_PIN_RESET);
+	                  HAL_GPIO_WritePin(Indikator_2_GPIO_Port, Indikator_2_Pin, GPIO_PIN_SET);
+	                  HAL_GPIO_WritePin(Indikator_3_GPIO_Port, Indikator_3_Pin, GPIO_PIN_RESET);
+	              } else {
+	                  HAL_GPIO_WritePin(Indikator_1_GPIO_Port, Indikator_1_Pin, GPIO_PIN_RESET);
+	                  HAL_GPIO_WritePin(Indikator_2_GPIO_Port, Indikator_2_Pin, GPIO_PIN_RESET);
+	                  HAL_GPIO_WritePin(Indikator_3_GPIO_Port, Indikator_3_Pin, GPIO_PIN_SET);
+	              }
+
+	              // Tampilkan data ke UART
+	              char tx_buffer[128];
+//	              sprintf(tx_buffer, "SOC:%.2f, V:%.3f, I:%.3f, I_raw:%d\r\n",
+//	                          soc_coulomb_counting * 100.0f,
+//	                          measured_voltage,
+//							  measured_current_A,
+//	                          (int16_t)current_raw); // Tampilkan nilai raw sebagai signed integer
+	              //bentuk CSV
+	              sprintf(tx_buffer, "%lu,%.4f,%.4f,%.4f,%.4d\r\n",
+	                      time_ms / 1000,
+	                      soc_coulomb_counting * 100.0f,
+	                      measured_voltage,
+	                      measured_current_A,
+						  current_raw);
+
+//	              sprintf(tx_buffer, "V_bus:%.3fV, V_raw:%d, I_raw:%d, Shunt_raw:%d, Calib:%d\r\n",
+//	                          measured_voltage,
+//	                          voltage_raw,
+//	                          (int16_t)current_raw,   // Tampilkan sebagai signed int
+//	                          (int16_t)shunt_v_raw,   // Tampilkan sebagai signed int
+//	                          calib_val);
+
+	              HAL_UART_Transmit(&huart1, (uint8_t*)tx_buffer, strlen(tx_buffer), 10);
+	              }
+
+	          // Update timestamp
+	          time_ms += SAMPLING_TIME_MS;
+
+	          // Tunggu sesuai waktu sampling
+	          HAL_Delay(SAMPLING_TIME_MS);
+
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
+}
+
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
+void SystemClock_Config(void)
+{
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+  /** Configure the main internal regulator output voltage
+  */
+  __HAL_RCC_PWR_CLK_ENABLE();
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 25;
+  RCC_OscInitStruct.PLL.PLLN = 192;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 4;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+/* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if (huart->Instance == USART1)
+  {
+    // Jika data yang diterima adalah 'c' atau 'C'
+    if (uart_rx_buffer[0] == 'c' || uart_rx_buffer[0] == 'C') {
+      system_state = STATE_CHARGING;
+      char msg[] = "\r\nMode CHARGE diaktifkan.\r\n";
+      HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+    }
+    // Jika data yang diterima adalah 'd' atau 'D'
+    else if (uart_rx_buffer[0] == 'd' || uart_rx_buffer[0] == 'D') {
+      system_state = STATE_DISCHARGING;
+      char msg[] = "\r\nMode DISCHARGE diaktifkan.\r\n";
+      HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+    }
+    else if (uart_rx_buffer[0] == 'i' || uart_rx_buffer[0] == 'I') {
+          system_state = STATE_IDLE;
+          char msg[] = "\r\nMode IDLE.\r\n";
+          HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+    }
+
+    // Aktifkan kembali interrupt untuk menerima karakter berikutnya
+    HAL_UART_Receive_IT(&huart1, uart_rx_buffer, 1);
+  }
+}
+/* USER CODE END 4 */
+
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
+void Error_Handler(void)
+{
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+  __disable_irq();
+  while (1)
+  {
+  }
+  /* USER CODE END Error_Handler_Debug */
+}
+
+#ifdef  USE_FULL_ASSERT
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
+void assert_failed(uint8_t *file, uint32_t line)
+{
+  /* USER CODE BEGIN 6 */
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
+}
+#endif /* USE_FULL_ASSERT */

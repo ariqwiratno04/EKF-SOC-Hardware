@@ -1,10 +1,10 @@
-14:06:12 **** Incremental Build of configuration Debug for project EKF_SOC_Firmware ****
+12:34:16 **** Incremental Build of configuration Debug for project EKF_SOC_Firmware ****
 make -j16 all 
 arm-none-eabi-size   EKF_SOC_Firmware.elf 
    text	   data	    bss	    dec	    hex	filename
-  50364	    724	   8924	  60012	   ea6c	EKF_SOC_Firmware.elf
+  54340	    772	   8956	  64068	   fa44	EKF_SOC_Firmware.elf
 Finished building: default.size.stdout
  
 
-14:06:12 Build Finished. 0 errors, 0 warnings. (took 339ms)
+12:34:16 Build Finished. 0 errors, 0 warnings. (took 574ms)
 

@@ -80,7 +80,7 @@ main-build: EKF_SOC_Firmware.elf secondary-outputs
 
 # Tool invocations
 EKF_SOC_Firmware.elf EKF_SOC_Firmware.map: $(OBJS) $(USER_OBJS) C:\Users\LEGION\Documents\College\Skripsi\EKF-SOC-Hardware\Firmware\EKF_SOC_Firmware\STM32F411CEUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "EKF_SOC_Firmware.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\LEGION\Documents\College\Skripsi\EKF-SOC-Hardware\Firmware\EKF_SOC_Firmware\STM32F411CEUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="EKF_SOC_Firmware.map" -Wl,--gc-sections -static -L"C:\Users\LEGION\Documents\College\Skripsi\EKF-SOC-Hardware\Firmware\EKF_SOC_Firmware\Drivers\CMSIS\DSP\Lib\GCC" -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+	arm-none-eabi-g++ -o "EKF_SOC_Firmware.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\LEGION\Documents\College\Skripsi\EKF-SOC-Hardware\Firmware\EKF_SOC_Firmware\STM32F411CEUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="EKF_SOC_Firmware.map" -Wl,--gc-sections -static -L"C:\Users\LEGION\Documents\College\Skripsi\EKF-SOC-Hardware\Firmware\EKF_SOC_Firmware\Drivers\CMSIS\DSP\Lib\GCC" -u _printf_float -mfloat-abi=hard --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
